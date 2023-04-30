@@ -15,7 +15,8 @@ public func configure(_ app: Application) async throws {
         database: Environment.get("DATABASE_NAME") ?? "vapor_database"
     ), as: .psql)
 
-    app.migrations.add(CreateTodo())
+    app.migrations.add(CreateSongs())
+//    try await app.autoMigrate()
 
     // register routes
     try routes(app)
