@@ -16,18 +16,10 @@ struct SignupController: RouteCollection{
     }
     
     
-    func createUser(req: Request) throws -> EventLoopFuture<String>  {
+    func createUser(req: Request) async throws -> String  {
         let user = try req.content.decode(Signup.self)
-        return user.save(on: req.db).transform(to: "User Created Successfully")
+        try await user.save(on: req.db)
+        return "User Created Successfully"
+        
     }
-//    func createUser(req: Request) async throws -> String {
-//        let user = try req.content.decode(Signup.self)
-//        do {
-//            try await user.save(on: req.db)
-//            return "User Created Successfully"
-//        } catch {
-//            return error.localizedDescription
-//        }
-//
-//    }
 }

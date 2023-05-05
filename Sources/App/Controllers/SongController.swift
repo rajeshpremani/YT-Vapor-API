@@ -19,33 +19,37 @@ struct SongController: RouteCollection{
         }
     }
     
-    func index(req: Request) throws -> EventLoopFuture<[Song]>{
-        return Song.query(on: req.db).all()
+    func index(req: Request) async throws -> [Song]{
+        try await Song.query(on: req.db).all()
     }
     
-    func create(req: Request) throws -> EventLoopFuture<HTTPStatus>{
+    func create(req: Request) async throws -> HTTPStatus{
         let song = try req.content.decode(Song.self)
-        return song.save(on: req.db).transform(to: .ok)
+        try await song.save(on: req.db)
+        return .ok
     }
     
     
-    func update(req: Request) throws -> EventLoopFuture<HTTPStatus>{
+    func update(req: Request) async throws -> HTTPStatus{
         let song = try req.content.decode(Song.self)
         
-        return Song.find(song.id, on: req.db)
-            .unwrap(or: Abort(.notFound))
-            .flatMap {
-                $0.title = song.title
-                return $0.update(on: req.db).transform(to: .ok)
-            }
+        guard let songFromDb = try await Song.find(song.id, on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        songFromDb.title = song.title
+        try await songFromDb.update(on: req.db)
+        return .ok
     }
     
     
-    func delete(req: Request) throws -> EventLoopFuture<HTTPStatus>{
-        Song.find(req.parameters.get("songID"), on: req.db)
-            .unwrap(or: Abort(.notFound))
-            .flatMap({$0.delete(on: req.db)})
-            .transform(to: .ok)
+    func delete(req: Request) async throws -> HTTPStatus{
+        guard let song = try await Song.find(req.parameters.get("songID"), on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        try await song.delete(on: req.db)
+        return .ok
     }
     
 }
