@@ -17,6 +17,8 @@ struct SignupController: RouteCollection{
     
     
     func createUser(req: Request) async throws -> String  {
+        try Signup.validate(content: req)
+        
         let user = try req.content.decode(Signup.self)
         try await user.save(on: req.db)
         return "User Created Successfully"

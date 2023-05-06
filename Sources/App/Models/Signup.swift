@@ -38,6 +38,18 @@ final class Signup: Model, Content{
         self.mobileNumber = mobileNumber
         self.password = password
     }
+}
+
+
+extension Signup: Validatable{
+    static func validations(_ validations: inout Vapor.Validations) {
+        validations.add("email", as: String.self, is: .email)
+        validations.add("password",
+                        as: String.self,
+                        is: !.empty,
+                        customFailureDescription: "Password cannot be empty.")
+//        validations.add("mobileNumber", as: String.self, is: .alphanumeric)
+    }
     
     
 }
