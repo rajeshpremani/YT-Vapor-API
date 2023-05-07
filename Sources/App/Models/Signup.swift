@@ -43,12 +43,16 @@ final class Signup: Model, Content{
 
 extension Signup: Validatable{
     static func validations(_ validations: inout Vapor.Validations) {
+        validations.add("name", as:String.self, is: !.empty)
         validations.add("email", as: String.self, is: .email)
         validations.add("password",
                         as: String.self,
                         is: !.empty,
                         customFailureDescription: "Password cannot be empty.")
-//        validations.add("mobileNumber", as: String.self, is: .alphanumeric)
+        validations.add("mobileNumber",
+                        as: String.self,
+                        is: .characterSet(CharacterSet(charactersIn: "1234567890")),
+                        required: false, customFailureDescription: "Mobile number should contain numbers only.")
     }
     
     
